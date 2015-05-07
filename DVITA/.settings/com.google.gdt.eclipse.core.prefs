@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+jarsExcludedFromWebInfLib=
+launchConfigExternalUrlPrefix=http\://127.0.0.1\:8080/Test
+warSrcDir=war
+warSrcDirIsOutput=true
