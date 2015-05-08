@@ -51,16 +51,17 @@ Deploy the generated WAR file in Tomcat.
 Then make sure to put a copy of the dvita.config file into the app's WEB-INF directory.
 
 ##OfflineComponents - Building Topic Models
+
 ###Preparations
 On the console go to `Offlinecomponents/bin`
-
-So please do this:
 * Copy the directory tree DVITA/war/WEB-INF/classes to OfflineComponents/bin
 * Add the following JARs in DVITA\war\WEB-INF\lib\ to the classpath: mysql-connector-java-5.1.22-bin.jar, db2jcc.jar, ojdbc6.jar
 
 If you now complain that this is not performed by some build scripts, feel free to contribute one.
 
 ###Initialize DVITA DB
+If you already have an initialized DVITA DB, then move on to the next section.
+
 DVITA can currently fetch the raw documents for the topic model from any DB2, MySQL and Oracle DB. To store these connections and other information it uses a set of configuration tables (prefixed `CONFIG_`) in the DVITA DB. These need to be set up by running the following command:
 
 `java IntializeConfigTables`
@@ -87,16 +88,21 @@ This will create the following tables in your DVITA DB:
  * TITLE, DESCRIPTION are displayed to the user in the data set selection dialog.
  * MININGIDS: a space separated list of identifiers, each referencing a TOPICMINING.ID to offer for exploration.
 
-###Configure Raw Data Source
+###Build the Topic Model
+Execute the following steps sequentially.
+
+###1. Configure the Topic Model
 Follow these steps:
 * Reuse an existing or insert a new CONFIG_CONNECTION record to point to the raw data DB. 
-* Insert a CONFIG_RAWDATA record using this connection to allow the offline components to obtain the list of "documents"
-* Insert a CONFIG_TOPICMINING record with all information pertaining to a particular topic model of the raw data. We build topic models using LDA, so each topic model has a predefined number of topics, date range, etc.
+* Reuse an existing or insert a new CONFIG_RAWDATA record using this connection to allow the offline components to obtain the list of "documents"
+* Insert a new CONFIG_TOPICMINING record with all information pertaining to a particular topic model of the raw data. We build topic models using LDA, so each topic model has a predefined number of topics, date range, etc.
 
 Note it is important that the raw data exposes in each time slice at least one document. Otherwise you will see an exception.
 
-###Preprocessing
-Run the preprocessor, which will boil the text down to plain word bags, apply stopwords (currently English only), and remove short words. It will also store document word distributions in the DB.
+###2. Preprocessing
+This needs to be performed only once for each RAWDATA record. It can also be performed when the raw data was updated since the last time preprocessing.
+
+The preprocessor will boil the raw data text sources down to plain word bags, apply stopwords (currently English only), and remove short words. It will also store document word distributions in the DB.
 
 Command template:
 `java Preprocessing RAWDATA_ID`
@@ -106,7 +112,7 @@ Command template:
 
 Example: `java Preprocessing 14`
 
-###Run DynamicLDA
+###3. Run Dynamic LDA
 This will run [http://en.wikipedia.org/wiki/Dynamic_topic_model](David Blei's LDA-based Dynamic Topic Model) algorithm to build a model of the topic dynamics in the data set. The algorithm is implemented in the [https://github.com/Blei-Lab/dtm](dtm package). You will have to compile the dtm code for your machine.
 
 Command template:
@@ -118,7 +124,7 @@ Command template:
 
 Example: `java DynamicLDA 40 C:\XYZ\DLDA`
 
-###Topic Ranking
+###4. Topic Ranking
 The DVITA web app will offer various ways of sorting the topic list (see [http://dbis.rwth-aachen.de/~derntl/papers/preprints/dasp2013-dvita-preprint.pdf](this paper) for details). This program will rank the topics and store the result in the DB, so the app can display pre-sorted lists.
 
 Command template:
@@ -129,7 +135,7 @@ Command template:
 Example:
 `java TopicRanking 40`
 
-###Document Similarity Computation
+###5. Document Similarity Computation
 DVITA allows users to browse documents by similarity over different time slices in the topic model. Details of how this is done are in [http://dbis.rwth-aachen.de/~derntl/papers/preprints/dasp2013-dvita-preprint.pdf](this paper).
 
 Command template:
@@ -141,7 +147,22 @@ Command template:
 Example:
 `java SimilarDocumentComputation 40`
 
-###Add Topic Model to DVITA Web App
+###6. Add Topic Model to DVITA Web App
 Now we can add the newly built dynamic topic model to the DVITA web app for users to explore.
 
 In the CONFIG_GUI table, each row represents a group node in the DVITA Data Set selection dialog. The topic models to show under the group node are referenced in the field MININGIDS, which refer to space separated identifiers from CONFIG_TOPICMINING.ID
+
+If you skip this last step, the topic model will still be available for exploration by supplying its ID as an URL parameter to the DVITA Web app, e.g. http://[YOUR SERVER]/DVita?id=40.
+
+##Notes
+###DVITA2
+There is an experimental [https://github.com/rwth-acis/DVITA2](DVITA2) app, which encapsulates the OfflineComponents in a web based control panel GUI.
+
+###License
+Copyright 2012-2015 Michael Derntl, Nikou Günnemann
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this software except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
