@@ -113,7 +113,7 @@ Command template:
 Example: `java Preprocessing 14`
 
 ###3. Run Dynamic LDA
-This will run [http://en.wikipedia.org/wiki/Dynamic_topic_model](David Blei's LDA-based Dynamic Topic Model) algorithm to build a model of the topic dynamics in the data set. The algorithm is implemented in the [https://github.com/Blei-Lab/dtm](dtm package). You will have to compile the dtm code for your machine.
+This will run [David Blei's LDA-based Dynamic Topic Model](http://en.wikipedia.org/wiki/Dynamic_topic_model) algorithm to build a model of the topic dynamics in the data set. The algorithm is implemented in the [dtm package](https://github.com/Blei-Lab/dtm). You will have to compile the dtm code for your machine.
 
 Command template:
 `java DynamicLDA TOPICMINING_ID DLDA_PATH`
@@ -125,7 +125,7 @@ Command template:
 Example: `java DynamicLDA 40 C:\XYZ\DLDA`
 
 ###4. Topic Ranking
-The DVITA web app will offer various ways of sorting the topic list (see [http://dbis.rwth-aachen.de/~derntl/papers/preprints/dasp2013-dvita-preprint.pdf](this paper) for details). This program will rank the topics and store the result in the DB, so the app can display pre-sorted lists.
+The DVITA web app will offer various ways of sorting the topic list (see [this paper](http://dbis.rwth-aachen.de/~derntl/papers/preprints/dasp2013-dvita-preprint.pdf) for details). This program will rank the topics and store the result in the DB, so the app can display pre-sorted lists.
 
 Command template:
 `java TopicRanking TOPICMINING_ID`
@@ -136,7 +136,7 @@ Example:
 `java TopicRanking 40`
 
 ###5. Document Similarity Computation
-DVITA allows users to browse documents by similarity over different time slices in the topic model. Details of how this is done are in [http://dbis.rwth-aachen.de/~derntl/papers/preprints/dasp2013-dvita-preprint.pdf](this paper).
+DVITA allows users to browse documents by similarity over different time slices in the topic model. Details of how this is done are in [this paper](http://dbis.rwth-aachen.de/~derntl/papers/preprints/dasp2013-dvita-preprint.pdf).
 
 Command template:
 `java SimilarDocumentComputation TOPICMINING_ID [NUM_PERIODS]`
@@ -156,7 +156,7 @@ If you skip this last step, the topic model will still be available for explorat
 
 ##Notes
 ###DVITA2
-There is an experimental [https://github.com/rwth-acis/DVITA2](DVITA2) app, which encapsulates the OfflineComponents in a web based control panel GUI.
+There is an experimental [DVITA2](https://github.com/rwth-acis/DVITA2) app, which encapsulates the OfflineComponents in a web based control panel GUI.
 
 ###License
 Copyright 2012-2015 Michael Derntl, Nikou Günnemann
