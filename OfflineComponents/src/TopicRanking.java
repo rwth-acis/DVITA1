@@ -10,7 +10,6 @@ import com.mytest.dvita.server.ConfigTopicminingServer;
 import com.mytest.dvita.server.ConnectionManager;
 import com.mytest.dvita.server.DVitaConfig;
 
-
 public class TopicRanking {
 
 	boolean overwriteTable = true;

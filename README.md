@@ -54,10 +54,8 @@ Then make sure to put a copy of the dvita.config file into the app's WEB-INF dir
 
 ###Preparations
 On the console go to `Offlinecomponents/bin`
-* Copy the directory tree DVITA/war/WEB-INF/classes to OfflineComponents/bin
-* Add the following JARs in DVITA\war\WEB-INF\lib\ to the classpath: mysql-connector-java-5.1.22-bin.jar, db2jcc.jar, ojdbc6.jar
-
-If you now complain that this is not performed by some build scripts, feel free to contribute one.
+* Add the directory DVITA/war/WEB-INF/classes to the CLASSPATH variable
+* Add the following JARs in DVITA\war\WEB-INF\lib\ to the CLASSPATH variable: mysql-connector-java-5.1.22-bin.jar, db2jcc.jar, ojdbc6.jar
 
 ###Initialize DVITA DB
 If you already have an initialized DVITA DB, then move on to the next section.

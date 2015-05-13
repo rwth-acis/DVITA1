@@ -48,10 +48,11 @@ public class DVitaConfig {
 			{			
 				// First call -- read all the info from dvita.config
 				String path = presetPath;
-				if(path == null) {
-					System.out.println("CONFIG FILE = " + path);
+				if(path == null) {					
 					path = Paths.get("dvita.config").toAbsolutePath().toString();
 				}
+				
+				System.out.println("CONFIG FILE = " + path);
 				
 				// read the file				
 				for(String line : Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8)) {

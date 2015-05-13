@@ -27,7 +27,7 @@ import com.mytest.dvita.shared.ConfigTopicminingShared.Granularity;
 
 public class DynamicLDA {
 	
-	int sequenceMinIter = 1000; // min und max iterationen
+	int sequenceMinIter = 100; // min und max iterationen
 	int sequenceMaxIter  = 1000; // für den dynamic LDA
 	int maxEMIter = 100; // iterationen für den initialen (static LDA)
 	
@@ -174,21 +174,24 @@ public class DynamicLDA {
 
 		LinkedList<Integer> docsPerTimeStamp = new LinkedList<Integer>();
 
-		System.out.println("Step1");
+		System.out.println("Obtaining time slices.");
 
 		String sqlIntervalRange = "SELECT ID, intervalStart, intervalEnd FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_topicintervals ORDER BY intervalStart ASC";
 		Statement statement3 = connection.createStatement();
 		ResultSet sql3 = statement3.executeQuery(sqlIntervalRange);
 
+		System.out.println("Creating temporary document IDs table.");		
+		Statement tempTable = connection.createStatement();				
+		Tools.DropTableIfExists(tempTable, info2.tablePrefix + "_TEMPIDS", DVitaConfig.getSchema());
+		tempTable.executeUpdate("CREATE TABLE " + DVitaConfig.getSchemaDot() + info2.tablePrefix + "_TEMPIDS(ID INTEGER NOT NULL, PRIMARY KEY (ID))");
+		tempTable.close();		
+		
 		while(sql3.next()) {
-
-			System.out.println("Step2");
-
-
 			int intervalID = sql3.getInt("ID");
 			String intervalStart = sql3.getString("intervalStart");
 			String intervalEnd = sql3.getString("intervalEnd");
-
+			
+			System.out.println("Processing interval " + intervalID);
 
 			// hole nur die DokumentIDs die SOWOHL in contains sind ALS AUCH im gültigen Intervallbereich
 			String where = "";
@@ -196,7 +199,7 @@ public class DynamicLDA {
 				where = info.whereClause + " AND ";
 			}
 			
-			// FIXME: this causes a SQL string too long/complex exception if we go beyond ~2000 words per time slice.
+			// FIXED! this causes a SQL string too long/complex exception if we go beyond ~2000 words per time slice.
 			// therefore during preprocessing we need to add an additional table x_docinfos(docid,date) with 
 			// mapping from doc to date
 
@@ -209,49 +212,37 @@ public class DynamicLDA {
 				Connection rawDataConnection = ConnectionManager.getRawDataConnection(info);
 				String subquery = "Select "+info.columnNameID+" as DOCID FROM "+info.fromClause+" WHERE "+where+""+info.columnNameDate+">='"+ intervalStart+"' AND "+info.columnNameDate+"<'" + intervalEnd+"'";
 				Statement state = rawDataConnection.createStatement();
-				ResultSet sqlIds = state.executeQuery(subquery);
-				String out = "(";
-				if(sqlIds.next()) {
-					out += sqlIds.getInt("DOCID");
+				ResultSet sqlIds = state.executeQuery(subquery);				
+				
+				Statement tempIds = connection.createStatement();
+				tempIds.executeUpdate("DELETE FROM " + DVitaConfig.getSchemaDot() + info2.tablePrefix + "_TEMPIDS");
+				while(sqlIds.next()) {
 					noDocs = false;
-					while(sqlIds.next()) {
-						out += ","+sqlIds.getInt("DOCID");
-					}
-
-				}
-				out += ")";
+					tempIds.executeUpdate("INSERT INTO " + DVitaConfig.getSchemaDot() + info2.tablePrefix + "_TEMPIDS VALUES (" + sqlIds.getInt("DOCID") + ")");
+				}				
+				
 				sqlIds.close();
 				rawDataConnection.close();
-				sqlquery= "Select DISTINCT DOCID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_contains WHERE DOCID in "+out;
-
+				
+				sqlquery = "SELECT DISTINCT DOCID "
+						+ "FROM " + DVitaConfig.getSchemaDot() + info.tablePrefix + "_contains " 
+						+ "WHERE DOCID IN (SELECT ID FROM " + DVitaConfig.getSchemaDot() + info2.tablePrefix + "_TEMPIDS)";
 			}
 
-
 			int docsInThisTimestamp = 0;
-
 
 			if(!noDocs) {
 				Statement statement = connection.createStatement();
 				ResultSet sql = statement.executeQuery(sqlquery);
 				Statement statement2 = connection.createStatement();
 				
-
-				//ArrayList<Integer> DOCIDS;
-				//DOCIDS=new ArrayList<Integer>();
 				// gehe durch alle dokumente (aus diesem Zeitintervall)
 				while(sql.next()){
-
-					//System.out.println("Step3");
-
 
 					int DOCID= sql.getInt("DOCID");
 					// bestimme wörter (und deren anzhal) für das aktuelle dokument
 					String sqlquery1= "SELECT QUANTITY,WORDID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_contains WHERE DOCID = " + DOCID + " ORDER BY WORDID ASC";
 					ResultSet resultsql = statement2.executeQuery(sqlquery1);
-
-					//System.out.println(sqlquery1);
-
-
 
 					String output = "";
 					int distinctWordsPerDoc = 0;
@@ -279,22 +270,24 @@ public class DynamicLDA {
 					docFile.log(distinctWordsPerDoc + output + "\n");
 					fileDocID2DatabaseDocID.add(DOCID);
 					fileDocID2DatabaseIntervalID.add(intervalID);
-
-
 				}
-			
 			}
 			
 			System.out.println("  " + intervalStart+" - "+intervalEnd);
-			System.out.println("  docsInThisTimestamp " + docsInThisTimestamp);
-			if( docsInThisTimestamp==0){
-				System.out.println(intervalStart+" - "+intervalEnd);
+			System.out.println("  " + docsInThisTimestamp + "documents");
+			if(docsInThisTimestamp==0){
+				System.out.println("  NO DOCUMENTS IN THIS TIME SLICE! NEED TO EXIT, SORRY");
 				System.exit(-1);
 			}
 			docsPerTimeStamp.add(docsInThisTimestamp);
 			
 			//System.exit(-1);
 		}
+
+		System.out.println("Dropping temporary document IDs table");
+		tempTable = connection.createStatement();				
+		Tools.DropTableIfExists(tempTable, info2.tablePrefix + "_TEMPIDS", DVitaConfig.getSchema());
+		tempTable.close();
 
 		docFile.close();
 
@@ -358,20 +351,20 @@ public class DynamicLDA {
 		Statement statement = connection.createStatement();
 		
 		if(!loadWordIDsFile(tmpDirectory,ignoreID)) {
-			System.out.println("error A");
+			System.out.println("ERROR! Cannot load Word IDs file.");
 			System.exit(-1);
 		}
 		int nrTimesteps = loadDocIDsFile(tmpDirectory,ignoreID);
 		
 		if(nrTimesteps == -1) {
-			System.out.println("error B");
+			System.out.println("ERROR! Cannot obtain documents and time slices.");
 			System.exit(-1);
 		}
 		
 		int nrWords = inverseFrequentWordsMap.size();	
 		
 		long runtimePostLDA = runPostLDA(tmpDirectory,statement,nrTimesteps,nrWords);
-		System.out.println("runtime post LDA: " + runtimePostLDA);
+		System.out.println("Runtime post LDA = " + runtimePostLDA);
 	}
 
 
@@ -391,7 +384,7 @@ public class DynamicLDA {
 			String firstLine = br.readLine();
 			// muss die topicMining ID sein
 			if(Integer.parseInt(firstLine) != info2.id) {
-				System.out.println("ACHTUNG: TopicMiningID ist anders!!!");
+				System.out.println("ATTENTION: TopicMiningID is different!");
 				if(!ignoreID)System.exit(-1);
 			
 				// kopiere dann die interval tabelle
@@ -420,7 +413,7 @@ public class DynamicLDA {
 			String secondLine = br.readLine();
 			// muss die database ID sein
 			if(Integer.parseInt(secondLine) != info2.rawdataID) {
-				System.out.println("error 2");
+				System.out.println("ERROR 2");
 				System.exit(-1);
 			}
 			
@@ -438,7 +431,7 @@ public class DynamicLDA {
 				String[] pair = strLine.split(" ");
 				if(Integer.parseInt(pair[0]) != count) {
 					// IDs von LDA sind aufsteigend
-					System.out.println("error 3");
+					System.out.println("ERROR 3");
 					System.exit(-1);
 				}
 				
@@ -476,14 +469,14 @@ public class DynamicLDA {
 			String firstLine = br.readLine();
 			// muss die topicMining ID sein
 			if(Integer.parseInt(firstLine) != info2.id) {
-				System.out.println("ACHTUNG TopicMINING ID is anders!!!!");
+				System.out.println("ATTENTION: TopicMINING ID is different!");
 				if(!ignoreID) System.exit(-1);
 			}
 
 			String secondLine = br.readLine();
 			// muss die database ID sein
 			if(Integer.parseInt(secondLine) != info2.rawdataID) {
-				System.out.println("error 2");
+				System.out.println("ERROR 2");
 				System.exit(-1);
 			}
 
@@ -496,7 +489,7 @@ public class DynamicLDA {
 				String[] pair = strLine.split(" ");
 				if(Integer.parseInt(pair[0]) != count) {
 					// IDs von LDA sind aufsteigend
-					System.out.println("error 3");
+					System.out.println("ERROR 3");
 					System.exit(-1);
 				}
 				
@@ -538,7 +531,7 @@ public class DynamicLDA {
 			Path runpathp = FileSystems.getDefault().getPath(runPath);
 			// Pfad wo die Ergebnisse gespeichert werden
 			Path p2 = java.nio.file.Files.createTempDirectory(runpathp,"LDA");
-			System.out.println(p2.getFileName());
+			System.out.println("LDA folder " + p2.getFileName());
 			File workingPath = new File(runPath);
 			String tmpData = p2.getFileName()+"/data";
 			String tmpDirectory = p2.getFileName().toString();
@@ -569,8 +562,9 @@ public class DynamicLDA {
 				lda.start();
 				
 				Process p = null;
+				System.out.println("Starting LDA:");
 				if(linux) {
-					String runCommend = runPath + "/main -ntopics " + nrTopics + " -mode fit -rng_seed 0 -initialize_lda true -corpus_prefix " + tmpData + " -outname "+p2.getFileName()+" -top_chain_var 0.005 -alpha 0.01 -lda_sequence_min_iter "+this.sequenceMinIter+" -lda_sequence_max_iter "+this.sequenceMaxIter+" -lda_max_em_iter "+this.maxEMIter;
+					String runCommend = runPath + "/main -ntopics " + nrTopics + " -mode fit -rng_seed 0 -initialize_lda true -corpus_prefix " + tmpData + " -outname "+p2.getFileName()+" -top_chain_var 0.005 -alpha 0.01 -lda_sequence_min_iter "+this.sequenceMinIter+" -lda_sequence_max_iter "+this.sequenceMaxIter+" -lda_max_em_iter "+this.maxEMIter;					
 					System.out.println(runCommend);
 					// export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/usr/lib
 					p = Runtime.getRuntime().exec(runCommend,null,workingPath);			
@@ -589,7 +583,7 @@ public class DynamicLDA {
 				while ((line = bre.readLine()) != null) {
 					//System.out.println(line);
 					if(line.contains("EM iter")) {
-						System.out.println("iteration " + curr);
+						System.out.println("  Iteration " + curr);
 						
 						if(listeItertations.contains(curr)) {
 							Tools.copyFolder(new File(runPath + "/"+ tmpDirectory),new File(runPath + "/"+ tmpDirectory+"-"+curr));
@@ -606,7 +600,7 @@ public class DynamicLDA {
 
 
 				p.waitFor();
-				System.out.println("LDA Done.");
+				System.out.println("LDA Completed.");
 				lda.pause();
 			}
 			catch (Exception err) {
@@ -619,9 +613,10 @@ public class DynamicLDA {
 			long runtimePostLDA = runPostLDA(tmpDirectory,statement,nrTimesteps,nrWords);
 			
 			Log l = new Log("runtime"+args+".txt",true,true,true);
-			l.log("pre LDA " + preLDA.getTime());
-			l.log("LDA " + lda.getTime());
-			l.log("post LDA " + runtimePostLDA);
+			l.log("Runtime in millisecs:\n");
+			l.log("pre LDA " + preLDA.getTime() + "\n");
+			l.log("LDA " + lda.getTime() + "\n");
+			l.log("post LDA " + runtimePostLDA + "\n");
 			l.close();
 			
 			connection.close();
@@ -908,7 +903,7 @@ public class DynamicLDA {
 			//args[2] = "LDA4840017260647270770-2"; // LDA ergebnis auslesen (wenn z.b. vorher abgebrochen)
 
 			
-			 if(args.length!=2 && args.length!=3) { System.out.println("please specify topicMining ID and DTM runpath"); System.exit(-1); }
+			 if(args.length!=2 && args.length!=3) { System.out.println("Please specify topicMining ID and DTM runpath"); System.exit(-1); }
 		
 			 
 			Statement statement = connection.createStatement();
@@ -924,7 +919,7 @@ public class DynamicLDA {
 			if(d.linux) { 
 				d.runPath = args[1];
 			} else if(args[1]!="")  {
-				System.out.println("nutze user specified runpath");
+				System.out.println("Using user specified path to LDA binary");
 				d.runPath = args[1];
 			}
 			
