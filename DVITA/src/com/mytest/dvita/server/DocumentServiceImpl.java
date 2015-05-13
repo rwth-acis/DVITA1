@@ -296,9 +296,7 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 
 
 			{
-				System.out.println("Ausgabe von dem Titel:"+docid);
-				//ArrayList<String> TextDoc= new ArrayList<String>();
-				//TextDoc="test";
+				System.out.println("Fetching document: " + docid);
 				String where = "";
 				if(info.whereClause != null && info.whereClause.length()>0) {
 					where = info.whereClause + " AND ";
@@ -307,7 +305,28 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 				if(info.columnNameURL!=null) {
 					theurl = " "+info.columnNameURL+" as URL, ";
 				}
-				String sqlquery2="select "+info.columnNameContent+" as Text, "+info.columnNameTitle+" as Title, "+theurl+info.columnNameDate+" as Datum from "+info.fromClause+" Where "+where+" "+info.columnNameID+"="+docid+"";
+				String copyrightCol = "";
+				if(info.columnNameCopyright != null) {
+					copyrightCol = " " + info.columnNameCopyright + " as COPYRIGHT, ";
+				}
+				String textDisplayCol = "";
+				if(info.columnNameTextDisplay != null) {
+					textDisplayCol = " " + info.columnNameTextDisplay + " as TEXTDISPLAY, ";
+				}
+				String authorsCol = "";
+				if(info.columnNameAuthors != null) {
+					authorsCol = " " + info.columnNameAuthors + " as AUTHORS, ";
+				}
+				
+				String sqlquery2 = "select "/*+info.columnNameContent+" as Text, "*/+
+						info.columnNameTitle+" as Title, " + 
+						theurl + 
+						copyrightCol + 
+						textDisplayCol +
+						authorsCol +
+						info.columnNameDate+" as Datum from " + info.fromClause +
+						" Where " + where + " " + info.columnNameID + "=" + docid + "";
+				
 				System.out.println(sqlquery2);
 				Statement statement2 = rawDataConnection.createStatement();
 				ResultSet sql2 = statement2.executeQuery(sqlquery2);
@@ -315,16 +334,19 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 
 				DocumentData p = new DocumentData();
 				while(sql2.next()){
-
-					p.content=sql2.getString("Text");
+					p.content = info.columnNameTextDisplay != null ? sql2.getString("TEXTDISPLAY") : "";
 					p.title=sql2.getString("Title");
 					p.date = sql2.getString("Datum");
-				if(info.columnNameURL!=null) {
-					p.url = sql2.getString("URL");
-				}
-
-				}
-				
+					if(info.columnNameURL != null) {
+						p.url = sql2.getString("URL");
+					}
+					if(info.columnNameCopyright != null) {
+						p.copyright = sql2.getString("COPYRIGHT");
+					}
+					if(info.columnNameAuthors != null) {
+						p.authors = sql2.getString("AUTHORS");
+					}					
+				}				
 				
 				rawDataConnection.close();
 				connection.close();

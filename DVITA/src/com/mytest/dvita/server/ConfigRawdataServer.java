@@ -14,6 +14,9 @@ public class ConfigRawdataServer extends ConfigRawdataShared {
 	public String columnNameTitle;
 	public String columnNameDate;
 	public String columnNameURL;
+	public String columnNameCopyright;
+	public String columnNameTextDisplay;
+	public String columnNameAuthors;
 	public String fromClause;
 	public String whereClause;
 	

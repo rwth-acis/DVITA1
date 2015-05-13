@@ -2455,7 +2455,7 @@ public class DVita implements EntryPoint {
 				}
 
 				private native void createWindowForDocs(String DocumentContain) /*-{
-		var w = $wnd.open('','_blank','width=400,height=400,resizable,scrollbars');
+		var w = $wnd.open('','_blank','width=800,height=600,resizable,scrollbars');
 		w.document.write(DocumentContain);
 		w.document.close();
 
@@ -2472,28 +2472,42 @@ public class DVita implements EntryPoint {
 						}
 
 						public void onSuccess(DocumentData pair) {
-
-
-							String DocumentContain = pair.content;
-							String title = pair.title;
-							String header = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head><title>"+title+"</title></head>";
-							String text = "<body style=\"background-color:#EEEEEE\"><span style=\"font-size:120%;color:black;font-family:sans-serif\">Title: "+ title+"<br/>Date: "+pair.date;
-							if(pair.url != null) {
-								text += "<br/><a href=\""+pair.url+"\" target=\"_blank\">Visit original document</a>";
+							String doc = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"><html><head>"+
+									"<title>" + pair.title + "</title>" +
+									"<style>" +
+									" .title{font-size:120%;color:black;font-family:sans-serif;padding-bottom:3pt;}" +
+									" .authors{font-family:sans-serif;padding-bottom:6pt;}" +
+									" .date,.copyright{font-family:sans-serif}" +
+									" .url{padding-top:6pt;padding-bottom:6pt;font-family:sans-serif}" +
+									" .text{padding:10px;margin:6px;border:1px solid #222222;font-family:serif;background-color:white}" +
+									"</style>" +
+									"</head><body style='background-color:#EEEEEE'>" +
+									"<div class='title'>" + pair.title + "</div>";
+							
+							if(pair.authors != null && pair.authors.trim().length() > 0) {
+								doc += "<div class='authors'>" + pair.authors + "</div>";
 							}
-							text +=	"</span></br><p style=\"margin:30px;padding:10px;border-width:1px;border-style:solid;color:#222222;font-family:sans-serif;background-color:#FFFFFF\">";
+							
+							doc += "<div class='date'>Date: " + pair.date + "</div>";
+							
+							if(pair.copyright != null && pair.copyright.trim().length() > 0) {
+								doc += "<div class='copyright'>" + pair.copyright + "</div>";
+							}
+							
+							if(pair.url != null && pair.url.trim().length() > 0) {
+								doc += "<div class='url'>&rarr; <a href=\"" + pair.url + "\" target='_blank'>Visit original document website</a></div>";
+							}
+														
+							if(pair.content != null && pair.content.trim().length() > 0) {
+								doc += "<div class='text'>" + pair.content + "</div>";
+							}
+							
+							doc += "</body></html>";
+							
+							System.out.print(doc);
 
-
-							String footer = "</p></body></html>";
-
-							createWindowForDocs(header+text+DocumentContain+footer);
-							//////////////////////////////////////////////////////////////////////////////////////////////////////
-							//contentOfDocument.setContents(DocumentContain);
+							createWindowForDocs(doc);							
 						}
-
-
-
-
 					});
 				}
 

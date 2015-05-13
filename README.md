@@ -72,7 +72,7 @@ This will create the following tables in your DVITA DB:
 
 * CONFIG_RAWDATA: configuration of SQL query template to map raw data in some local or remote DB to offline processing data in the DVITA DB. Each record here uses a particular CONFIG_CONNECTION (referencing the CONFIG_CONNECTION.ID using CONNECTIONID). Notable fields:
  * TABLEPREFIX: a prefix to the names of tables that represent the raw data in the DVITA DB. If your DB imposes restrictions on the length of table names, keep the prefix short.
- * COLUMNNAME{ID,DATE,CONTENT,TITLE,URL} represent the field names in the raw data base that map to these fields. For example: consider a raw data base PAPERS(ID,PUB_DATE,TITLE,ABSTRACT,BODY,DOI_LINK). If you want to build a topic model based on the paper abstracts, then the mapping should be COLUMNNAMEID = 'ID', COLUMNNAMEDATE = 'PUB_YEAR', COLUMNNAMECONTENT = 'ABSTRACT', COLUMNNAMETITLE = 'TITLE', COLUMNNAMEURL = 'DOI_LINK'.
+ * COLUMNNAME{ID,DATE,CONTENT,TITLE,AUTHORS,URL,COPYRIGHT,TEXTDISPLAY} represent the field names in the raw data base that map to these fields. COLUMNNAME{ID, CONTENT, TITLE} are particularly important for the topic mining process. The other fields are relevant for displaying documents to the user in the DVITA web GUI. For example: consider a raw data base PAPERS(ID,PUB_DATE,TITLE,ABSTRACT,BODY,DOI_LINK). If you want to build a topic model based on the paper abstracts, then the mapping should be COLUMNNAMEID = 'ID', COLUMNNAMEDATE = 'PUB_YEAR', COLUMNNAMECONTENT = 'ABSTRACT', COLUMNNAMETITLE = 'TITLE', COLUMNNAMEURL = 'DOI_LINK'. COLUMNNAMECOPYRIGHT can point to the field that contains copyright or license text to display in DVITA's document browser (can be NULL).  COLUMNNAMETEXTDISPLAY points to the field that contains the text to display in the document browser. This is handy if you do not want or are not allowed to display the full text, e.g. due to the publisher's license. If NULL, then no text is displayed. COLUMNNAMEAUTHORS can also be NULL.
  * FROM / WHERE: these allow you to provide SQL from and where clauses on the raw data. In the example above one could restrict the model to consider only papers published after 2005 by setting FROM='PAPERS' and WHERE='PUB_YEAR > 2005'
  * CONNECTIONID: references the CONFIG_CONNECTION.ID
 
@@ -159,7 +159,7 @@ If you skip this last step, the topic model will still be available for explorat
 There is an experimental [DVITA2](https://github.com/rwth-acis/DVITA2) app, which encapsulates the OfflineComponents in a web based control panel GUI.
 
 ###License
-Copyright 2012-2015 Michael Derntl, Nikou GÃ¼nnemann
+Copyright 2012-2015 Michael Derntl, Nikou Günnemann
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this software except in compliance with the License. You may obtain a copy of the License at
 

@@ -65,6 +65,9 @@ public class ConfigReader {
 				 info.columnNameDate = sql.getString("columnNameDate");
 				 info.columnNameURL = sql.getString("columnNameURL");
 				 info.columnNameTitle = sql.getString("columnNameTitle"); 
+				 info.columnNameCopyright = sql.getString("columnNameCopyright");
+				 info.columnNameTextDisplay = sql.getString("columnNameTextDisplay");
+				 info.columnNameAuthors = sql.getString("columnNameAuthors");
 				 info.fromClause = sql.getString("from"); 
 				 info.whereClause = sql.getString("where"); 
 				 info.columnNameID = sql.getString("columnNameID"); 
