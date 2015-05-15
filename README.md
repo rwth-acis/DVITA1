@@ -1,7 +1,7 @@
 #A Web-Based Tool for Building and Exploring Dynamic Topic Models
 
 ##Eclipse
-Launch or obtain Eclipse IDE for Java Developers. These instructions were made with version 4.3.2 (Kepler), ran with JRE 7 on x86.
+Launch or obtain Eclipse IDE for Java Developers. These instructions were made with version 4.3.2 (Kepler), ran with JRE 8 on x86.
 
 Import this repository in Eclipse (either manually or via some plugin). There are two folders/projects: 
 * DVITA: the GWT Web App
@@ -15,9 +15,10 @@ For Eclipse 4.3:
 * Go to Help > Install New Software; add https://dl.google.com/eclipse/plugin/4.3 as a location ("Add" button).
 * Select "Google Plugin for Eclipse" and "Google Web Toolkit SDK" (under "SDKs") and finish the wizard
 
-Now import the folder containing all the individual projects in your Eclipse workspace (`File > Import > General > Existing projects into workspace`)
+Now import the folder containing all the individual projects in your Eclipse workspace (menu File > Import > General > Existing projects into workspace)
 
 ##DVITA Web App - Exploring Topic Models
+
 ###Build / Compile
 Build the project, if not done automatically.
 
@@ -26,9 +27,14 @@ We need to let GWT Compiler have some fun, too. Right-click project DVITA > Goog
 ###Set up DVITA DB
 We need to set up a database where DVITA stores app settings and the topic models. Feel free to select any DB2, mysql, or Oracle DBMS in your vicinity (you need credentials with full permissions there).
 
-DVITA needs a config file that defines the connection details of your DB. So create a file `dvita.config` and put the following information there (the example contains fake DB2 database connection details for illustration):
+DVITA needs a config file that defines the connection details of your DB. So create a file `dvita.config` and put the following information there (the example contains fake DB2 database connection details for illustration). 
+
+NOTE 1: `dbtype` can currently be 1 = MySQL, 2 = DB2, 3 = Oracle
+
+NOTE 2: `dbschema` can be omitted when there's no schema, all other fields are mandatory.
 
 ```
+dbtype=2
 dbdriver=com.ibm.db2.jcc.DB2Driver
 dbconnection=jdbc:db2://myrottenserver:55005/the_db:currentSchema=topics;
 dbschema=topics
@@ -47,13 +53,14 @@ If there are no build errors: right click project DVITA > Run/Debug As > Web App
 (Make sure Chrome is your default browser; will ask you to install GWT Developer extension; you will want to accept)
 
 ###Deploy Remotely
-Deploy the generated WAR file in Tomcat.
+To generate the WAR file for deployment, right-click the file generateWAR.xml under project DVITA. Select Run As > Ant Build.
+Then deploy the generated WAR file in Tomcat.
 Then make sure to put a copy of the dvita.config file into the app's WEB-INF directory.
 
 ##OfflineComponents - Building Topic Models
 
 ###Preparations
-On the console go to `Offlinecomponents/bin`
+On the console go to `OfflineComponents/bin`
 * Add the directory DVITA/war/WEB-INF/classes to the CLASSPATH variable
 * Add the following JARs in DVITA\war\WEB-INF\lib\ to the CLASSPATH variable: mysql-connector-java-5.1.22-bin.jar, db2jcc.jar, ojdbc6.jar
 
@@ -70,7 +77,7 @@ This will create the following tables in your DVITA DB:
 
 * CONFIG_RAWDATA: configuration of SQL query template to map raw data in some local or remote DB to offline processing data in the DVITA DB. Each record here uses a particular CONFIG_CONNECTION (referencing the CONFIG_CONNECTION.ID using CONNECTIONID). Notable fields:
  * TABLEPREFIX: a prefix to the names of tables that represent the raw data in the DVITA DB. If your DB imposes restrictions on the length of table names, keep the prefix short.
- * COLUMNNAME{ID,DATE,CONTENT,TITLE,AUTHORS,URL,COPYRIGHT,TEXTDISPLAY} represent the field names in the raw data base that map to these fields. COLUMNNAME{ID, CONTENT, TITLE} are particularly important for the topic mining process. The other fields are relevant for displaying documents to the user in the DVITA web GUI. For example: consider a raw data base PAPERS(ID,PUB_DATE,TITLE,ABSTRACT,BODY,DOI_LINK). If you want to build a topic model based on the paper abstracts, then the mapping should be COLUMNNAMEID = 'ID', COLUMNNAMEDATE = 'PUB_YEAR', COLUMNNAMECONTENT = 'ABSTRACT', COLUMNNAMETITLE = 'TITLE', COLUMNNAMEURL = 'DOI_LINK'. COLUMNNAMECOPYRIGHT can point to the field that contains copyright or license text to display in DVITA's document browser (can be NULL).  COLUMNNAMETEXTDISPLAY points to the field that contains the text to display in the document browser. This is handy if you do not want or are not allowed to display the full text, e.g. due to the publisher's license. If NULL, then no text is displayed. COLUMNNAMEAUTHORS can also be NULL.
+ * COLUMNNAME{ID,DATE,CONTENT,TITLE,AUTHORS,URL,COPYRIGHT,TEXTDISPLAY} represent the field names in the raw data base that map to these fields. COLUMNNAME{ID, CONTENT, TITLE} are particularly important for the topic mining process. The other fields are relevant for displaying documents to the user in the DVITA web GUI. For example: consider a raw data base PAPERS(ID,PUB_DATE,TITLE,ABSTRACT,BODY,DOI_LINK). If you want to build a topic model based on the paper abstracts, then the mapping should be COLUMNNAMEID = 'ID', COLUMNNAMEDATE = 'PUB_DATE', COLUMNNAMECONTENT = 'ABSTRACT', COLUMNNAMETITLE = 'TITLE', COLUMNNAMEURL = 'DOI_LINK'. COLUMNNAMECOPYRIGHT should point to the field that contains copyright or license text to display in DVITA's document browser (can be NULL).  COLUMNNAMETEXTDISPLAY points to the field that contains the text to display in the document browser. This is handy if you do not want or are not allowed to display the full text, e.g. due to the publisher's license. If NULL, then no text is displayed. COLUMNNAMEAUTHORS can also be NULL.
  * FROM / WHERE: these allow you to provide SQL from and where clauses on the raw data. In the example above one could restrict the model to consider only papers published after 2005 by setting FROM='PAPERS' and WHERE='PUB_YEAR > 2005'
  * CONNECTIONID: references the CONFIG_CONNECTION.ID
 

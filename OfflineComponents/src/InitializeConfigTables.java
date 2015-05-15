@@ -29,12 +29,14 @@ public class InitializeConfigTables {
 
 			String schema = DVitaConfig.getSchemaDot();
 
-			Tools.DropTableIfExists(statement, "config_connection", schema);
-			Tools.DropTableIfExists(statement, "config_rawdata", schema);
+			System.out.println("Dropping existing config tables.");
 			Tools.DropTableIfExists(statement, "config_topicmining", schema);
+			Tools.DropTableIfExists(statement, "config_rawdata", schema);
 			Tools.DropTableIfExists(statement, "config_gui", schema);
 			Tools.DropTableIfExists(statement, "stopwords", schema);
-
+			Tools.DropTableIfExists(statement, "config_connection", schema);
+			
+			System.out.println("Creating table CONFIG_CONNECTION");
 			String sqltable = "CREATE TABLE "+ schema+ "config_connection ("
 					+ "id integer NOT NULL,"
 					+ "type integer NOT NULL,"
@@ -47,6 +49,7 @@ public class InitializeConfigTables {
 					+ ")";
 			statement.executeUpdate(sqltable);
 
+			System.out.println("Creating table CONFIG_RAWDATA");
 			sqltable = "CREATE TABLE " + schema + "config_rawdata ("
 					+ "meta_title varchar(60) NOT NULL,"
 					+ "meta_description varchar(200) NOT NULL,"
@@ -60,14 +63,17 @@ public class InitializeConfigTables {
 					+ "columnNameCopyright varchar(50),"
 					+ "columnNameTextDisplay varchar(50),"
 					+ "columnNameAuthors varchar(50),"
-					+ "from varchar(200) NOT NULL,"
-					+ "where varchar(300),"
+					+ (ConnectionManager.getDbType() == 1 ? "`from`" : "from") 
+					+ " varchar(200) NOT NULL,"
+					+ (ConnectionManager.getDbType() == 1 ? "`where`" : "where") 
+					+ " varchar(300),"
 					+ "connectionID integer DEFAULT NULL,"
 					+ "PRIMARY KEY (id),"
 					+ "FOREIGN KEY (connectionID) REFERENCES "+ schema+ "config_connection(id)"
 					+ ")";
 			statement.executeUpdate(sqltable);
 
+			System.out.println("Creating table CONFIG_TOPICMINING");
 			sqltable = "CREATE TABLE "+ schema+ "config_topicmining ("
 					+ "id integer NOT NULL UNIQUE,"
 					+ "rawdataid integer NOT NULL,"
@@ -86,6 +92,7 @@ public class InitializeConfigTables {
 			// tabelle gibt an, welche datenbanken/analyzen in der gui gezeigt werden
 			// title, description = human understanable description
 			// miningIDs (whitespace separated list of topicMiningIDs which should be grouped together in the GUI)
+			System.out.println("Creating table CONFIG_GUI");
 			sqltable = "CREATE TABLE "+ schema+ "config_gui ("
 					+ "id integer NOT NULL,"
 					+ "title varchar(100) NOT NULL,"
@@ -95,6 +102,7 @@ public class InitializeConfigTables {
 					+ ")";
 			statement.executeUpdate(sqltable);
 
+			System.out.println("Creating table STOPWORDS");
 			sqltable = "CREATE TABLE " + schema + "stopwords ("
 					+"name varchar(16) NOT NULL,"
 					+"lang char(2) DEFAULT 'en',"
@@ -102,6 +110,7 @@ public class InitializeConfigTables {
 					+")";
 			statement.executeUpdate(sqltable);
 
+			System.out.println("Populating table STOPWORDS");
 			String query = "INSERT INTO "+schema+"stopwords (name) VALUES"
 					+ "('a'),"
 					+ "('able'),"
@@ -629,6 +638,8 @@ public class InitializeConfigTables {
 					+ "('zero')";
 
 			statement.executeUpdate(query);
+			
+			System.out.println("Config tables initialized.");
 
 			c.close();
 		} 

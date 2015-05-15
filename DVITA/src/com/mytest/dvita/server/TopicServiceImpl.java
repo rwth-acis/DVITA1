@@ -33,7 +33,7 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 
 			TopicLabels  tlabels = new TopicLabels();
 
-			String sqlquery="SELECT DISTINCT TOPICID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_describedby ";
+			String sqlquery="SELECT DISTINCT TOPICID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_DESCRIBEDBY ";
 			Statement statement = connection.createStatement();
 			ResultSet sql = statement.executeQuery(sqlquery);
 
@@ -43,21 +43,21 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 			}
 			Integer[]TopicIds = new Integer[TopicIDs.size()];
 			TopicIds = TopicIDs.toArray(TopicIds);
-			System.out.println("Länge von TopicIds "+TopicIds.length);
+			System.out.println("TopicIds.length = "+TopicIds.length);
 			//ArrayList<Integer> WordId= new ArrayList<Integer>();
 			Integer[][]WORDIDS = new Integer [TopicIds.length][nrWords];
 			String[][]WORDS = new String [TopicIds.length][nrWords];
 			for(int i=0; i <TopicIds.length; i++ ){
 
-				//MYSQL:				sqlquery="SELECT WORDID, SUM( PROBABILITY ) AS A FROM "+ConnectionManager.schema+info2.tablePrefix+"_describedby WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC  LIMIT 0 , "+nrWords;
-				sqlquery="SELECT WORDID, SUM( PROBABILITY ) AS A FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_describedby WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC "+ConnectionManager.only(nrWords);
+				//MYSQL:				sqlquery="SELECT WORDID, SUM( PROBABILITY ) AS A FROM "+ConnectionManager.schema+info2.tablePrefix+"_DESCRIBEDBY WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC  LIMIT 0 , "+nrWords;
+				sqlquery="SELECT WORDID, SUM( PROBABILITY ) AS A FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_DESCRIBEDBY WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC "+ConnectionManager.only(nrWords);
 				statement = connection.createStatement();
 				sql = statement.executeQuery(sqlquery);
 
 				int j=0;
 				while(sql.next()){
 					WORDIDS[i][j]=(sql.getInt("WORDID"));
-					System.out.println("WORDIDS "  +i+ "und "+j+"ist:"+ WORDIDS[i][j]);
+					System.out.println("WORDIDS ["+i+"]["+j+"] = " + WORDIDS[i][j]);
 
 					String sqlquery1="SELECT NAME FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_WORDS WHERE ID="+WORDIDS[i][j]+" ";
 					Statement statement1 = connection.createStatement();
@@ -180,7 +180,7 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 				return new Integer[0];
 			}
 
-			String sqlquery="select t.TOPICID as ID from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_describedby t WHERE t.WORDID in ("+listOfWordIDs+") GROUP BY t.TOPICID ORDER BY count(*) DESC, sum(t.PROBABILITY) DESC";
+			String sqlquery="select t.TOPICID as ID from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_DESCRIBEDBY t WHERE t.WORDID in ("+listOfWordIDs+") GROUP BY t.TOPICID ORDER BY count(*) DESC, sum(t.PROBABILITY) DESC";
 			//System.out.println(sqlquery);
 			ResultSet sql = statement.executeQuery(sqlquery);
 
@@ -221,7 +221,7 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 			ArrayList<String> endOfTime= new ArrayList<String>();
 			ArrayList<Integer> idOfTime= new ArrayList<Integer>();
 
-			String sqlquery="SELECT intervalStart, intervalEND,ID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_topicintervals Order by ID";
+			String sqlquery="SELECT intervalStart, intervalEND,ID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_TOPICINTERVALS Order by ID";
 			Statement statement = connection.createStatement();
 			ResultSet sql = statement.executeQuery(sqlquery);
 
@@ -271,7 +271,7 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 			ConfigTopicminingServer info2 = (ConfigTopicminingServer) httpSession.getAttribute("SetupInfo2");
 			ConfigRawdataServer info = (ConfigRawdataServer) httpSession.getAttribute("SetupInfo");
 
-			String sqlquery="SELECT intervalStart, intervalEND,ID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_topicintervals ORDER BY ID ASC";
+			String sqlquery="SELECT intervalStart, intervalEND,ID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_TOPICINTERVALS ORDER BY ID ASC";
 			Statement statement = connection.createStatement();
 			ResultSet sql = statement.executeQuery(sqlquery);
 
@@ -284,20 +284,20 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 			String[] TopicTime = new String[IntervalStartentries.size()];
 			TopicTime = IntervalStartentries.toArray(TopicTime);
 			Integer [] TimeId = new Integer[IntervalIDentries.size()];
-			System.out.println("TimeId:"+TimeId.length);
+			//System.out.println("TimeId.length = "+TimeId.length);
 
 			TimeId = IntervalIDentries.toArray(TimeId);
 			//int ArrayLength= TopicTime.length;
 
-			System.out.println("Länge von TopicIds "+Topics.length);
+			//System.out.println("Länge von TopicIds "+Topics.length);
 			//ArrayList<Integer> WordId= new ArrayList<Integer>();
 			Integer[]WORDIDS = new Integer[nrWords];
 			ThemeRiverData [] riverdata= new ThemeRiverData[Topics.length];
 
-			System.out.println("input" + Arrays.toString(Topics));
+			//System.out.println("input" + Arrays.toString(Topics));
 
 
-			PreparedStatement ps = connection.prepareStatement("SELECT WORDID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_describedby WHERE TOPICID=? AND INTERVALID=? ORDER BY PROBABILITY DESC "+ConnectionManager.only(nrWords)); 
+			PreparedStatement ps = connection.prepareStatement("SELECT WORDID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_DESCRIBEDBY WHERE TOPICID=? AND INTERVALID=? ORDER BY PROBABILITY DESC "+ConnectionManager.only(nrWords)); 
 
 			PreparedStatement ps2 = connection.prepareStatement("SELECT NAME FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_WORDS WHERE ID=?");
 
@@ -308,7 +308,7 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 
 				for (int k=0; k<TimeId.length;k++){// Zu jeder Zeit
 
-					//sqlquery="SELECT WORDID FROM "+ConnectionManager.schema+info2.tablePrefix+"_describedby WHERE TOPICID="+Topics[i]+" AND INTERVALID="+TimeId[k]+" ORDER BY PROBABILITY DESC "+ConnectionManager.only(nrWords);
+					//sqlquery="SELECT WORDID FROM "+ConnectionManager.schema+info2.tablePrefix+"_DESCRIBEDBY WHERE TOPICID="+Topics[i]+" AND INTERVALID="+TimeId[k]+" ORDER BY PROBABILITY DESC "+ConnectionManager.only(nrWords);
 					ps.setInt(1, Topics[i]);
 					ps.setInt(2, TimeId[k]);
 
@@ -338,14 +338,12 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 
 				riverdata[i] =new ThemeRiverData(); 
 
-				System.out.println("topics"+Topics[i]);
+				//System.out.println("topics"+Topics[i]);
 				riverdata[i].topicID=Topics[i];
 				riverdata[i].relevanceAtTime=TopicLists;
 				riverdata[i].wordsAtTime=WORDS;
 
-				System.out.println("words " + Arrays.toString(WORDS[0]));
-
-
+				//System.out.println("words " + Arrays.toString(WORDS[0]));
 			}
 
 			statement.close();
@@ -382,7 +380,7 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 			// (wir können unten NICHT den SQL avg nehmen, da wir Dokumente
 			// mit zu geringen TopicPropoertions gepruned haben, das sind aber
 			// für jedes Topic andere Dokumente)
-			String sqlquery="SELECT count(DISTINCT DOCID) AS numberDocs FROM  "+DVitaConfig.getSchemaDot()+tablePrefix+ "_belongto WHERE INTERVALID ="+j+"";
+			String sqlquery="SELECT count(DISTINCT DOCID) AS numberDocs FROM  "+DVitaConfig.getSchemaDot()+tablePrefix+ "_BELONGTO WHERE INTERVALID ="+j+"";
 			ResultSet sql = statement.executeQuery(sqlquery);
 			sql.next();
 			double numberDocs = sql.getDouble("numberDocs");
@@ -393,11 +391,11 @@ public class TopicServiceImpl extends RemoteServiceServlet implements TopicServi
 			// ACHTUNG: hier dennoch sum. average kommt gleich
 			// liegt daran, dass wir pro topic unterschiedliche anzahl docs haben
 			// daher ist der average nicht der normale average
-			sqlquery="SELECT SUM(  TOPICPROPORTION ) AS y  FROM  " +DVitaConfig.getSchemaDot()+tablePrefix+ "_belongto WHERE TOPICID= "+topic+" AND  INTERVALID ="+j+"";
+			sqlquery="SELECT SUM(  TOPICPROPORTION ) AS y  FROM  " +DVitaConfig.getSchemaDot()+tablePrefix+ "_BELONGTO WHERE TOPICID= "+topic+" AND  INTERVALID ="+j+"";
 			sql = statement.executeQuery(sqlquery);
 			sql.next();
 			TopicLists[j]=sql.getDouble("y")/numberDocs; // nun ist der average korrekt berechnet!!!
-			System.out.println("einträge für " +j+"von Topic"+topic+ "ist :"+ TopicLists[j]);
+			//System.out.println("einträge für " +j+"von Topic"+topic+ "ist :"+ TopicLists[j]);
 
 
 

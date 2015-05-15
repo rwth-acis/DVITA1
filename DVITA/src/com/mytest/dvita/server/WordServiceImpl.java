@@ -29,7 +29,7 @@ public class WordServiceImpl extends RemoteServiceServlet implements WordService
 			/*for(int i=0;i<wordsIds.length;i++){
 				System.out.println("IDvonWort: "+wordsIds[i]);
 			}*/
-			String sqlquery="SELECT intervalStart, intervalEND,ID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_topicintervals ";
+			String sqlquery="SELECT intervalStart, intervalEND,ID FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_TOPICINTERVALS ";
 			Statement statement = connection.createStatement();
 			ResultSet sql = statement.executeQuery(sqlquery);
 
@@ -53,11 +53,11 @@ public class WordServiceImpl extends RemoteServiceServlet implements WordService
 			Double[][]wordsCount = new Double [wordsIds.length][TimeId.length];
 			for(int i=0; i <wordsIds.length; i++ ){//für jedes Wort
 				for (int k=0; k<TimeId.length;k++){// Zu jeder Zeit
-				sqlquery="SELECT PROBABILITY FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_describedby WHERE WORDID="+wordsIds[i]+" AND INTERVALID="+TimeId[k]+" AND TOPICID="+topicID;
+				sqlquery="SELECT PROBABILITY FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_DESCRIBEDBY WHERE WORDID="+wordsIds[i]+" AND INTERVALID="+TimeId[k]+" AND TOPICID="+topicID;
 				statement = connection.createStatement();
 				sql = statement.executeQuery(sqlquery);
 				
-				System.out.println("sql"+sqlquery);
+				//System.out.println("sql"+sqlquery);
 				//int j=0;
 				while(sql.next()){//füge die 4 Wörter ein
 					wordsCount[i][k]=sql.getDouble("PROBABILITY");
@@ -112,7 +112,7 @@ public class WordServiceImpl extends RemoteServiceServlet implements WordService
 			
 			WordData wordsOfTopics = new WordData(); 
 			
-			String sqlquery="select WORDID, PROBABILITY from "+DVitaConfig.getSchemaDot()+ info2.tablePrefix+ "_describedby WHERE TOPICID="+topic+" AND INTERVALID="+topictime+" ORDER BY PROBABILITY DESC "+ConnectionManager.only(Number);
+			String sqlquery="select WORDID, PROBABILITY from "+DVitaConfig.getSchemaDot()+ info2.tablePrefix+ "_DESCRIBEDBY WHERE TOPICID="+topic+" AND INTERVALID="+topictime+" ORDER BY PROBABILITY DESC "+ConnectionManager.only(Number);
 			Statement statement = connection.createStatement();
 			ResultSet sql = statement.executeQuery(sqlquery);
 			

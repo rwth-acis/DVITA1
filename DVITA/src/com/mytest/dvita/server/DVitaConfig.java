@@ -15,6 +15,7 @@ public class DVitaConfig {
 	private static String dbschema;
 	private static String dbusername;
 	private static String dbpassword;
+	private static String dbtype;
 	
 	// PUBLIC //
 	public static String getConnectionString() { return read("dbconnection");	}	
@@ -22,6 +23,9 @@ public class DVitaConfig {
 	public static String getUserName() { return read("dbusername"); }
 	public static String getPassword() { return read("dbpassword"); }
 	public static String getSchema() { return read("dbschema"); }
+	
+	// 1 = mysql, 2 = db2, 3 = oracle
+	public static String getDbType() { return read("dbtype"); } 
 	
 	public static String getSchemaDot() {
 		// only add dot if schema isn't empty
@@ -65,7 +69,8 @@ public class DVitaConfig {
 			}
 			
 			Field f = DVitaConfig.class.getDeclaredField(what);			
-			return f != null ? (String) f.get(null) : "";
+			String ret = f != null ? (String) f.get(null) : "";
+			return ret != null ? ret : "";
 		}
 		catch(Exception e) 
 		{

@@ -122,9 +122,11 @@ public class Preprocessing {
 
 		//String Query = "Select ID, Text FROM rawdata";
 		String where = "";
-		if(info.whereClause.length()>0) { where = " WHERE " + info.whereClause; }
-		String Query = "Select "+info.columnNameID+" as ID, "+info.columnNameContent+" as Text, "+info.columnNameTitle+" as Titel FROM "+info.fromClause+where;
-		System.out.println("QueryTexptsplit:"+Query);
+		if(info.whereClause != null && info.whereClause.length() > 0) { 
+			where = " WHERE " + info.whereClause; 
+		}
+		String Query = "SELECT "+info.columnNameID+" AS ID, "+info.columnNameContent+" AS Text, "+info.columnNameTitle+" AS Titel FROM "+info.fromClause+where;
+		System.out.println("Raw Data Query: " + Query);
 		Statement statement2 = rawDataConnection.createStatement();
 		ResultSet sql = statement2.executeQuery(Query);
 		//gehe durch alle dokumente:
@@ -261,7 +263,7 @@ public class Preprocessing {
 			statement.executeBatch(); // die wörter die oben gesammelt wurden als batch
 			// in die datenbank schreiben
 
-			System.out.println(ID);
+			System.out.println("Processing document with ID " + ID);
 
 			Set<String> Words = mapQuantity.keySet();
 			
@@ -287,12 +289,9 @@ public class Preprocessing {
 		long b = writeWords.getTime();
 		long c = writeRealWords.getTime();
 		
-		System.out.println("stemingEtc " + a);
-		System.out.println("writeWords " + b);
-		System.out.println("writeRealWords " + c);
-		
-		
-		
+		System.out.println("Stemming " + a + " ms");
+		System.out.println("Writing word stems " + b + " ms");
+		System.out.println("Writing full words " + c + " ms");
 
 		sql.close();
 		statement.close();
@@ -321,7 +320,7 @@ public class Preprocessing {
 
 	private  void writeRealWorldRepresentatives(Statement statement, int size) {
 		
-		System.out.println("starte realworld word writing");
+		System.out.println("Storing all word variants");
 		
 		try {
 			

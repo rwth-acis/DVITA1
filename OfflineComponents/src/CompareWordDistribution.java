@@ -46,7 +46,7 @@ public class CompareWordDistribution {
 				TopicLabels  meinRiver = new TopicLabels();
 //		ThemeRiver2 meinRiver2 = new ThemeRiver2();
 
-				String sqlquery="SELECT DISTINCT TOPICID FROM "+ DVitaConfig.getSchemaDot() +info2.tablePrefix+"_describedby ";
+				String sqlquery="SELECT DISTINCT TOPICID FROM "+ DVitaConfig.getSchemaDot() +info2.tablePrefix+"_DESCRIBEDBY ";
 				ResultSet sql = statement.executeQuery(sqlquery);
 
 				ArrayList<Integer> TopicIDs= new ArrayList<Integer>();
@@ -55,7 +55,7 @@ public class CompareWordDistribution {
 				}
 				Integer[]TopicIds = new Integer[TopicIDs.size()];
 				TopicIds = TopicIDs.toArray(TopicIds);
-				System.out.println("Länge von TopicIds "+TopicIds.length);
+				System.out.println("TopicIds.length = "+TopicIds.length);
 				//ArrayList<Integer> WordId= new ArrayList<Integer>();
 				Integer[][]WORDIDS = new Integer [TopicIds.length][nrWords];
 				String[][]WORDS = new String [TopicIds.length][nrWords];
@@ -63,9 +63,9 @@ public class CompareWordDistribution {
 				
 				for(int i=0; i <TopicIds.length; i++ ){
 
-					//sqlquery="SELECT DISTINCT WORDID FROM "+info2.tablePrefix+"_describedby WHERE TOPICID="+TopicIds[i]+" ORDER BY COUNT DESC  LIMIT 0 , "+nrWords;
-//MYSQL:				sqlquery="SELECT WORDID, SUM( COUNT ) AS A FROM "+ConnectionManager.schema+info2.tablePrefix+"_describedby WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC  LIMIT 0 , "+nrWords;
-					sqlquery="SELECT WORDID, SUM( PROBABILITY ) AS A FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_describedby WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC "+ConnectionManager.only(nrWords);
+					//sqlquery="SELECT DISTINCT WORDID FROM "+info2.tablePrefix+"_DESCRIBEDBY WHERE TOPICID="+TopicIds[i]+" ORDER BY COUNT DESC  LIMIT 0 , "+nrWords;
+//MYSQL:				sqlquery="SELECT WORDID, SUM( COUNT ) AS A FROM "+ConnectionManager.schema+info2.tablePrefix+"_DESCRIBEDBY WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC  LIMIT 0 , "+nrWords;
+					sqlquery="SELECT WORDID, SUM( PROBABILITY ) AS A FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_DESCRIBEDBY WHERE TOPICID = "+TopicIds[i]+" GROUP BY WORDID ORDER BY A DESC "+ConnectionManager.only(nrWords);
 					statement = connection.createStatement();
 					sql = statement.executeQuery(sqlquery);
 					//for(int j=0; j <WORDID.; j++){
@@ -74,7 +74,7 @@ public class CompareWordDistribution {
 						WORDIDS[i][j]=(sql.getInt("WORDID"));
 						WordProbs[i][j]=(sql.getDouble("A"));
 						
-						System.out.println("WORDIDS "  +i+ "und "+j+"ist:"+ WORDIDS[i][j]);
+						System.out.println("WORDIDS ["+i+ "]["+j+"] = "+ WORDIDS[i][j]);
 
 						String sqlquery1="SELECT NAME FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_WORDS WHERE ID="+WORDIDS[i][j]+" ";
 						Statement statement1 = connection.createStatement();

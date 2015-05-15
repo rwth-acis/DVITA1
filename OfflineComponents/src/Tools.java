@@ -25,7 +25,7 @@ public class Tools {
 			// (wir können unten NICHT den SQL avg nehmen, da wir Dokumente
 			// mit zu geringen TopicPropoertions gepruned haben, das sind aber
 			// für jedes Topic andere Dokumente)
-			String sqlquery="SELECT count(DISTINCT DOCID) AS numberDocs FROM  "+DVitaConfig.getSchemaDot()+tablePrefix+ "_belongto WHERE INTERVALID ="+j+"";
+			String sqlquery="SELECT count(DISTINCT DOCID) AS numberDocs FROM  "+DVitaConfig.getSchemaDot()+tablePrefix+ "_BELONGTO WHERE INTERVALID ="+j+"";
 			ResultSet sql = statement.executeQuery(sqlquery);
 			sql.next();
 			double numberDocs = sql.getDouble("numberDocs");
@@ -36,11 +36,11 @@ public class Tools {
 				// ACHTUNG: hier dennoch sum. average kommt gleich
 				// liegt daran, dass wir pro topic unterschiedliche anzahl docs haben
 				// daher ist der average nicht der normale average
-				sqlquery="SELECT SUM(  TOPICPROPORTION ) AS y  FROM  " +DVitaConfig.getSchemaDot()+tablePrefix+ "_belongto WHERE TOPICID= "+topic+" AND  INTERVALID ="+j+"";
+				sqlquery="SELECT SUM(  TOPICPROPORTION ) AS y  FROM  " +DVitaConfig.getSchemaDot()+tablePrefix+ "_BELONGTO WHERE TOPICID= "+topic+" AND  INTERVALID ="+j+"";
 				sql = statement.executeQuery(sqlquery);
 				sql.next();
 				TopicLists[j]=sql.getDouble("y")/numberDocs; // nun ist der average korrekt berechnet!!!
-				System.out.println("einträge für " +j+"von Topic"+topic+ "ist :"+ TopicLists[j]);
+				System.out.println("  Topic "+topic+" at time slice "+j+" = "+ TopicLists[j]);
 	
 			
 			
@@ -55,8 +55,9 @@ public class Tools {
 		if(schema.trim() != "" && !schema.endsWith("."))
 			schema = schema + ".";
 		
-		if(ConnectionManager.type==1){
+		if(ConnectionManager.getDbType() == 1){
 			// mysql
+			System.out.println("Trying to drop table "+ schema+table);
 			String sqltableclose = "DROP TABLE IF EXISTS "+ schema+table;	
 			statement.executeUpdate(sqltableclose);
 			return;
@@ -66,10 +67,10 @@ public class Tools {
 		//statement.executeUpdate(sqltableclose);
 		
 		// db2
-		if(ConnectionManager.type==2){
+		if(ConnectionManager.getDbType() == 2){
 		//ResultSet res;
 		try {
-			System.out.println("SELECT 1 FROM "+schema+table);
+			System.out.println("Checking whether table exists: "+schema+table);
 			statement.executeQuery("SELECT 1 FROM "+schema+table);
 		} catch (SQLException e) {
 			//System.out.println(e.getSQLState());
@@ -80,7 +81,7 @@ public class Tools {
 			throw e;
 		}
 		
-		//System.out.println("hoer");
+		System.out.println("  Dropping table: " +schema+table);
 		// tablle vorhanden, also löschen
 		statement.executeUpdate("DROP TABLE " + schema+table);
 		
