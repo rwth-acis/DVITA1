@@ -60,7 +60,7 @@ Then make sure to put a copy of the dvita.config file into the app's WEB-INF dir
 ##OfflineComponents - Building Topic Models
 
 ###Preparations
-On the console go to `Offlinecomponents/bin`
+On the console go to `OfflineComponents/bin`
 * Add the directory DVITA/war/WEB-INF/classes to the CLASSPATH variable
 * Add the following JARs in DVITA\war\WEB-INF\lib\ to the CLASSPATH variable: mysql-connector-java-5.1.22-bin.jar, db2jcc.jar, ojdbc6.jar
 
