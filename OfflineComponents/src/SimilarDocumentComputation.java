@@ -52,7 +52,7 @@ public class SimilarDocumentComputation {
 			t.start();
 			
 			// obtain max interval id
-			String sqlquery="select max(id) as MAXINTERVAL from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_topicintervals";
+			String sqlquery="select max(id) as MAXINTERVAL from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_TOPICINTERVALS";
 			Statement maxInterval = connection.createStatement();
 			ResultSet miRes = maxInterval.executeQuery(sqlquery);
 			miRes.next();
@@ -60,7 +60,7 @@ public class SimilarDocumentComputation {
 			
 			
 			// gehe durch alle dokumente
-			sqlquery="select DISTINCT DOCID, INTERVALID from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_belongto";
+			sqlquery="select DISTINCT DOCID, INTERVALID from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_BELONGTO";
 			Statement statementAllDocs = connection.createStatement();
 			ResultSet sql2 = statementAllDocs.executeQuery(sqlquery);
 			while(sql2.next()) {
@@ -68,7 +68,7 @@ public class SimilarDocumentComputation {
 				int docid = sql2.getInt("DOCID");
 				int myintervalID = sql2.getInt("INTERVALID");
 
-				System.out.println(docid);
+				System.out.println("Computing similarities for document with ID " + docid);
 				
 				int nrTopics = info2.NumberTopics;
 
@@ -87,7 +87,7 @@ public class SimilarDocumentComputation {
 						DocList = new HashSet<Integer>();
 					
 					
-						sqlquery="select DISTINCT DOCID from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_belongto WHERE INTERVALID="+intervalTime;
+						sqlquery="select DISTINCT DOCID from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_BELONGTO WHERE INTERVALID="+intervalTime;
 						statement = connection.createStatement();
 						//System.out.println(sqlquery);
 						ResultSet sql = statement.executeQuery(sqlquery);
@@ -117,7 +117,7 @@ public class SimilarDocumentComputation {
 						for(int i=0; i<nrTopics; i++) {
 							TopicproportionOfResearchedDocid[i] = 0.0;
 						}
-						sqlquery="select TOPICPROPORTION, TOPICID from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_belongto WHERE DOCID="+docid+" " ;
+						sqlquery="select TOPICPROPORTION, TOPICID from " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_BELONGTO WHERE DOCID="+docid+" " ;
 						statement = connection.createStatement();
 						//System.out.println(sqlquery);
 						ResultSet sql = statement.executeQuery(sqlquery);
@@ -157,7 +157,7 @@ public class SimilarDocumentComputation {
 							 * Hier speichere in  TopicproportionsOtherDoc die ids von topics
 							 * wo die verglichenen Docs in diesen Topics(Topicproportion) auftreten
 							 */
-							sqlquery="select TOPICPROPORTION, TOPICID from  " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_belongto WHERE DOCID="+otherDocId+"" ;
+							sqlquery="select TOPICPROPORTION, TOPICID from  " + DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_BELONGTO WHERE DOCID="+otherDocId+"" ;
 							//System.out.println(sqlquery);
 							ResultSet sql = statement.executeQuery(sqlquery);
 	
@@ -233,8 +233,8 @@ public class SimilarDocumentComputation {
 			long runtime = t.stop();
 			long runtime2 = t2.stop();
 			
-			System.out.println("runtime without database connection " + runtime);
-			System.out.println("overall runtime " + runtime2);
+			System.out.println("Runtime without database connection: " + runtime + " ms");
+			System.out.println("Overall runtime: " + runtime2 + " ms");
 			connection.close();
 
 		} catch (SQLException e) {

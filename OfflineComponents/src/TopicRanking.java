@@ -21,7 +21,7 @@ public class TopicRanking {
 		try {
 			
 			
-			String sqlquery="SELECT count(*) as timesteps FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_topicintervals";
+			String sqlquery="SELECT count(*) as timesteps FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_TOPICINTERVALS";
 			ResultSet sql = statement.executeQuery(sqlquery);
 			sql.next();
 			int timesteps = sql.getInt("timesteps");
@@ -104,7 +104,7 @@ public class TopicRanking {
 			Integer[]TopicIds = new Integer[list.size()];
 			
 			for(int i=0; i<list.size(); i++) {
-				System.out.println(list.get(i).value + " " + list.get(i).ID);
+				System.out.println("  Value of topic " + list.get(i).ID + ": " + list.get(i).value);
 				TopicIds[i] = list.get(i).ID;
 			}
 			
@@ -152,6 +152,7 @@ public class TopicRanking {
 			statement.executeUpdate(sqltable);
 
 			for(int sorttype=1; sorttype<=5; sorttype++) {
+				System.out.println("SORTING TOPICS (SORT TYPE 1)...");
 			
 				Integer[] order = topicSorting(sorttype,statement);
 			

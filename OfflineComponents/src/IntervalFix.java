@@ -21,7 +21,7 @@ public class IntervalFix {
 			Connection connection = ConnectionManager.getConnection();
 			Statement statement = connection.createStatement();
 
-			String sqlquery="UPDATE "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_topicintervals SET intervalStart=intervalStart+1 YEAR, intervalEnd=intervalEnd+1 YEAR";
+			String sqlquery="UPDATE "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_TOPICINTERVALS SET intervalStart=intervalStart+1 YEAR, intervalEnd=intervalEnd+1 YEAR";
 			statement.executeUpdate(sqlquery);
 			
 			statement.close();

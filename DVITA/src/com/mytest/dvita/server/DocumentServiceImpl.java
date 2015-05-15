@@ -71,8 +71,9 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 			ArrayList<Integer> wordsQuantityInDoc= new ArrayList<Integer>();
 			ResultSet sql;
 
+			//TODOMD: add the quantity information in the result list display
 			String sqlquery = "select distinct t1.DOCID as DOCID,t2.INTERVALID as TOPICTIME, t1.c, t1.q from (SELECT DOCID, count(*) as c, sum(QUANTITY) as q from "
-					+ DVitaConfig.getSchemaDot()+info.tablePrefix+"_contains where WORDID in ("+listOfWordIDs+")  group by DOCID ORDER BY count(*) desc, sum(QUANTITY) DESC "+ConnectionManager.only(10)+") t1,"+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_belongto t2 where t1.DOCID=t2.DOCID order by t1.c desc, t1.q desc";
+					+ DVitaConfig.getSchemaDot()+info.tablePrefix+"_CONTAINS where WORDID in ("+listOfWordIDs+")  group by DOCID ORDER BY count(*) desc, sum(QUANTITY) DESC "+ConnectionManager.only(10)+") t1,"+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_BELONGTO t2 where t1.DOCID=t2.DOCID order by t1.c desc, t1.q desc";
 			//System.out.println(sqlquery);
 			statement = connection.createStatement();
 			sql = statement.executeQuery(sqlquery);
@@ -151,8 +152,8 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 			}
 
 
-			String sqlquery="SELECT MAX(TOPICID) as x FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_belongto";
-			String sqlquery1="SELECT MIN(TOPICID) as y FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_belongto";
+			String sqlquery="SELECT MAX(TOPICID) as x FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_BELONGTO";
+			String sqlquery1="SELECT MIN(TOPICID) as y FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_BELONGTO";
 			Statement statement = connection.createStatement();
 			ResultSet sql = statement.executeQuery(sqlquery);
 			
@@ -170,7 +171,7 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 				
 				
 
-				String sqlquery0= "select DOCID from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_belongto WHERE TOPICID= "+input+" AND INTERVALID= "+topictime+" order by TOPICPROPORTION desc "+ConnectionManager.only(limit);
+				String sqlquery0= "select DOCID from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_BELONGTO WHERE TOPICID= "+input+" AND INTERVALID= "+topictime+" order by TOPICPROPORTION desc "+ConnectionManager.only(limit);
 				
 				statement = connection.createStatement();
 				sql = statement.executeQuery(sqlquery0);
@@ -250,7 +251,7 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 	}
 	
 	protected PreparedStatement createStatementGetTopicPropotions(Connection connection,ConfigTopicminingServer info2) throws SQLException {
-		return connection.prepareStatement("select TOPICPROPORTION,TOPICID from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_belongto WHERE DOCID=? order by TOPICPROPORTION "); // diese sortierung macht es nachher leichter!? oder wir nehmen hash map
+		return connection.prepareStatement("select TOPICPROPORTION,TOPICID from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_BELONGTO WHERE DOCID=? order by TOPICPROPORTION "); // diese sortierung macht es nachher leichter!? oder wir nehmen hash map
 	}
 	
 	protected SerializablePair<Integer[], Double[]> getTopicProportions(PreparedStatement ps, int docid) throws SQLException {
@@ -381,14 +382,14 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 			Statement statement = connection.createStatement();
 			
 			ArrayList<Integer> DocList= new ArrayList<Integer>();
-				String sqlquery="select DOCIDDESTINATION from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_similardocs WHERE INTERVALID="+topictime+" AND DOCIDSOURCE="+docid+" ORDER BY position ASC";
+				String sqlquery="select DOCIDDESTINATION from "+DVitaConfig.getSchemaDot()+info2.tablePrefix+ "_SIMILARDOCS WHERE INTERVALID="+topictime+" AND DOCIDSOURCE="+docid+" ORDER BY position ASC";
 				statement = connection.createStatement();
 				System.out.println(sqlquery);
 				ResultSet sql = statement.executeQuery(sqlquery);
 
 				while(sql.next()){
 					DocList.add(sql.getInt("DOCIDDESTINATION"));
-					System.out.println("DOCLIST"+DocList);
+					System.out.println("DOCLIST = "+DocList);
 				}
 				
 				
@@ -401,6 +402,7 @@ public class DocumentServiceImpl extends RemoteServiceServlet implements Documen
 			// nehme nur die x-besten als ausgabe
 			DocumentInfo[] result = new DocumentInfo[DocList.size()];
 			for(int i=0; i<DocList.size(); i++) {
+				//TODOMD: Add similarity measure in the result type, and display it in grid
 				result[i]= new DocumentInfo();
 				result[i].docID = DocList.get(i);
 				

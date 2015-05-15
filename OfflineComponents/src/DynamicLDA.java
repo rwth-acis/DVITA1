@@ -176,7 +176,7 @@ public class DynamicLDA {
 
 		System.out.println("Obtaining time slices.");
 
-		String sqlIntervalRange = "SELECT ID, intervalStart, intervalEnd FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_topicintervals ORDER BY intervalStart ASC";
+		String sqlIntervalRange = "SELECT ID, intervalStart, intervalEnd FROM "+DVitaConfig.getSchemaDot()+info2.tablePrefix+"_TOPICINTERVALS ORDER BY intervalStart ASC";
 		Statement statement3 = connection.createStatement();
 		ResultSet sql3 = statement3.executeQuery(sqlIntervalRange);
 
@@ -204,7 +204,7 @@ public class DynamicLDA {
 			// mapping from doc to date
 
 			// bestimme documentIDS die im zeitintervall-bereich liegen
-			String sqlquery= "Select DISTINCT DOCID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_contains WHERE DOCID in (Select "+info.columnNameID+" as DOCID FROM "+info.fromClause+" WHERE "+where+""+info.columnNameDate+">='"+ intervalStart+"' AND "+info.columnNameDate+"<'" + intervalEnd+"')";
+			String sqlquery= "Select DISTINCT DOCID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_CONTAINS WHERE DOCID in (Select "+info.columnNameID+" as DOCID FROM "+info.fromClause+" WHERE "+where+""+info.columnNameDate+">='"+ intervalStart+"' AND "+info.columnNameDate+"<'" + intervalEnd+"')";
 			boolean noDocs = false;
 			if(!info.dataOnHostServer) {
 				noDocs = true;
@@ -225,7 +225,7 @@ public class DynamicLDA {
 				rawDataConnection.close();
 				
 				sqlquery = "SELECT DISTINCT DOCID "
-						+ "FROM " + DVitaConfig.getSchemaDot() + info.tablePrefix + "_contains " 
+						+ "FROM " + DVitaConfig.getSchemaDot() + info.tablePrefix + "_CONTAINS " 
 						+ "WHERE DOCID IN (SELECT ID FROM " + DVitaConfig.getSchemaDot() + info2.tablePrefix + "_TEMPIDS)";
 			}
 
@@ -241,7 +241,7 @@ public class DynamicLDA {
 
 					int DOCID= sql.getInt("DOCID");
 					// bestimme wörter (und deren anzhal) für das aktuelle dokument
-					String sqlquery1= "SELECT QUANTITY,WORDID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_contains WHERE DOCID = " + DOCID + " ORDER BY WORDID ASC";
+					String sqlquery1= "SELECT QUANTITY,WORDID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_CONTAINS WHERE DOCID = " + DOCID + " ORDER BY WORDID ASC";
 					ResultSet resultsql = statement2.executeQuery(sqlquery1);
 
 					String output = "";
@@ -847,7 +847,7 @@ public class DynamicLDA {
 	private void determineFrequentWords(Connection connection) {
 		try {
 			// hier sollte der range auch noch berücksichtigt werden
-			String frequentQordQuery = "SELECT WORDID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_contains GROUP BY WORDID HAVING sum(quantity)>="+this.minWordCountOverall;
+			String frequentQordQuery = "SELECT WORDID FROM "+DVitaConfig.getSchemaDot()+info.tablePrefix+"_CONTAINS GROUP BY WORDID HAVING sum(quantity)>="+this.minWordCountOverall;
 			Statement statement3 = connection.createStatement();
 			ResultSet sql3 = statement3.executeQuery(frequentQordQuery);
 
