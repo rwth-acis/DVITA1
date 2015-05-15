@@ -55,8 +55,9 @@ public class Tools {
 		if(schema.trim() != "" && !schema.endsWith("."))
 			schema = schema + ".";
 		
-		if(ConnectionManager.type==1){
+		if(ConnectionManager.getDbType() == 1){
 			// mysql
+			System.out.println("DROP TABLE IF EXISTS "+ schema+table);
 			String sqltableclose = "DROP TABLE IF EXISTS "+ schema+table;	
 			statement.executeUpdate(sqltableclose);
 			return;
@@ -66,7 +67,7 @@ public class Tools {
 		//statement.executeUpdate(sqltableclose);
 		
 		// db2
-		if(ConnectionManager.type==2){
+		if(ConnectionManager.getDbType() == 2){
 		//ResultSet res;
 		try {
 			System.out.println("SELECT 1 FROM "+schema+table);

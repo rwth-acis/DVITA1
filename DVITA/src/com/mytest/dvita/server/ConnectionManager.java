@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import com.ibm.db2.jcc.DB2DataSource;
 
 public class ConnectionManager {
-	public static int type = 2; // 1 = mysql, 2=db2, 3=oracle
+	// 1 = mysql, 2=db2, 3=oracle
+	public static int getDbType() { 
+		return Integer.parseInt(DVitaConfig.getDbType()); 
+	}
 		
 	public static Connection getConnection() {		
 		Connection connection = null;
@@ -84,7 +87,7 @@ public class ConnectionManager {
 	
 	public static String only(int AnzahlZeilen){
 
-		switch(type) {
+		switch(getDbType()) {
 		case 1: return "LIMIT 0,"+AnzahlZeilen;
 		case 2: return "FETCH FIRST "+AnzahlZeilen+" ROWS ONLY";
 		default: return "";
