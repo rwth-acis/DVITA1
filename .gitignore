@@ -1,0 +1,9 @@
+/DLDA
+/DVITA/.gwt
+/DVITA/gwt-unitCache
+/DVITA/war/dvita
+/DVITA/war/WEB-INF/deploy
+/DVITA/war/WEB-INF/classes
+/OfflineComponents/bin
+*.war
+dvita.config
