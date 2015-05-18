@@ -3,7 +3,6 @@ package com.mytest.dvita.server;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import com.mytest.dvita.shared.ConfigTopicminingShared.Granularity;
 
 
 public class ConfigReader {
@@ -30,22 +29,8 @@ public class ConfigReader {
 			 // Zuordnung der granularity aus DB zu den Granularity aus der Menge{Yearly, Monthly ,...}
 			 
 			 int gran = sq2.getInt("granularity");
-			 System.out.println("Time slice granularity = " + gran);
-			 
-			 switch(gran) {
-			 	case 1: info2.gran = Granularity.YEARLY; break;
-			 	case 2: info2.gran = Granularity.MONTHLY; break;
-			 	case 3: info2.gran = Granularity.WEEKLY; break;
-			 	case 4: info2.gran = Granularity.DAYLY; break;
-			 	case 5: info2.gran = Granularity.QUARTERYEAR; break;
-			 	case 6: info2.gran = Granularity.HALFYEAR; break;
-			 	case 7: info2.gran = Granularity.FIVEYEARS; break;
-			 	case 8: info2.gran = Granularity.DECADE; break;
-			 	default:
-			 		System.out.println("Unknown granularity value");
-			 		info2.gran = Granularity.YEARLY; 
-			 		break;
-			 }
+			 info2.setGranularity(gran);			 
+			 System.out.println("Time slice granularity = " + gran);			 
 		}
 
 		return info2;

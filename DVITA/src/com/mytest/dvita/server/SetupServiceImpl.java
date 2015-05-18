@@ -5,17 +5,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
-
-import javax.servlet.ServletContextEvent;
 import javax.servlet.http.HttpSession;
-
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.mytest.dvita.client.SetupService;
 import com.mytest.dvita.shared.ConfigRawdataShared;
 import com.mytest.dvita.shared.ConfigTopicminingShared;
-import com.mytest.dvita.shared.ConfigTopicminingShared.Granularity;
 import com.mytest.dvita.shared.SerializablePair;
-import com.sun.glass.ui.Application;
 
 
 
@@ -136,25 +131,8 @@ public class SetupServiceImpl extends RemoteServiceServlet implements SetupServi
 					 info2.metaTitle = sq2.getString("meta_title"); 
 					 info2.rangeEnd = sq2.getTimestamp("rangeEnd");
 					 info2.rangeStart = sq2.getTimestamp("rangeStart");
-					 
-					 switch( sq2.getInt("granularity")) { 
-					 	case 1: info2.gran = Granularity.YEARLY; break;
-					 	case 2: info2.gran = Granularity.MONTHLY; break;
-					 	case 3: info2.gran = Granularity.WEEKLY; break;
-					 	case 4: info2.gran = Granularity.DAYLY; break;
-					 	case 5: info2.gran = Granularity.QUARTERYEAR; break;
-					 	case 6: info2.gran = Granularity.HALFYEAR; break;
-					 	case 7: info2.gran = Granularity.FIVEYEARS; break;
-					 	case 8: info2.gran = Granularity.DECADE; break;
-					 	default:
-					 		System.out.println("Unknown granularity value");
-					 		info2.gran = Granularity.YEARLY; 
-					 		break;
-					 }
-					 
+					 info2.setGranularity(sq2.getInt("granularity"));
 					 l.add(info2);
-					 
-					
 				}
 				
 				 }

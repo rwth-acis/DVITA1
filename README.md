@@ -84,7 +84,7 @@ This will create the following tables in your DVITA DB:
 * CONFIG_TOPICMINING: info for offline processing. For each CONFIG_RAWDATA record there can be multiple topic models, e.g. with varying numbers of topics and time slice granularities. Notable fields:
  * RAWDATAID: references the CONFIG_RAWDATA.ID from which to build the topic model
  * META{TITLE,DESCRIPTION} will be displayed to the user in the DVITA data set selection dialog, so choose meaningful texts there.
- * GRANULARITY: time slice length { 1 = yearly, 2 = monthly, 3 = weekly, 4 = daily, 5 = quarteryearly, 6 = halfyearly, 7 = five years, 8 = ten years }
+ * GRANULARITY: time slice length { 1 = yearly, 2 = monthly, 3 = weekly, 4 = daily, 5 = quarteryearly, 6 = halfyearly, 7 = five years, 8 = ten years, 9 = bi-yearly, 10 = three years, 11 = four years, 12 = century }
  * RANGESTART, RANGEEND will be applied as filters to the DATE column in the CONFIG_RAWDATA record. Both need to be provided
  * TABLEPREFIX will be the prefix of tables that represent the topic model in the DVITA DB. Use short prefixes.
  * NUMBEROFTOPICS: The Dynamic LDA algorithm requires a pre-defined number of topics in the topic model. Note that the number of topics has a significant effect on the runtime of LDA.
