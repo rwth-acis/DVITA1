@@ -784,7 +784,7 @@ public class DynamicLDA {
 			case HALFYEAR: calendar.add(Calendar.MONTH, 6); break;
 			case YEARLY: calendar.add(Calendar.YEAR, 1); break;
 			case FIVEYEARS: calendar.add(Calendar.YEAR, 5); break;
-			case DECADE: calendar.add(Calendar.YEAR, 1); break;	
+			case DECADE: calendar.add(Calendar.YEAR, 10); break;	
 			case BIYEARLY: calendar.add(Calendar.YEAR, 2); break;
 			case THREEYEARS: calendar.add(Calendar.YEAR, 3); break;
 			case FOURYEARS: calendar.add(Calendar.YEAR, 4); break;
